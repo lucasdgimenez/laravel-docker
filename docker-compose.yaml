@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: app
+    build: .
+    restart: always
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - mysql-app
+    networks:
+      - laravel
+
+  mysql-app:
+    image: mysql:8
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: laravel
+      MYSQL_DATABASE: laravel    
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    networks:
+      - laravel
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - laravel
+
+networks:
+  laravel:
+
+volumes:
+  dbdata:
